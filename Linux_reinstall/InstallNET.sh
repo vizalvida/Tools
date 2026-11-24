@@ -3114,13 +3114,15 @@ vgremove --select all -ff -y; \
 pvremove /dev/* -ff -y; \
 [[ -n "\$(blkid -t TYPE='vfat' -o device)" ]] && umount "\$(blkid -t TYPE='vfat' -o device)"; \
 ${PartmanEarlyCommand} \
-wget -qO- '$DDURL' | $DEC_CMD | /bin/dd of=\$(list-devices disk | grep ${IncDisk} | head -n 1); \
-/bin/ntfs-3g \$(list-devices partition | grep ${IncDisk} | head -n 1) /mnt; \
-cd '/mnt/ProgramData/Microsoft/Windows/Start Menu/Programs'; \
-cd Start* || cd start*; \
-cp -f '/net.bat' './net.bat'; \
+wget --tries=5 --retry-connrefused -qO- '$DDURL' | $DEC_CMD | /bin/dd of=\$(list-devices disk | grep ${IncDisk} | head -n 1) bs=4M; \
+sync; \
+/bin/ntfs-3g \$(list-devices partition | grep ${IncDisk} | head -n 1) /mnt || true; \
+cd '/mnt/ProgramData/Microsoft/Windows/Start Menu/Programs' && (cd Start* || cd start*) && cp -f '/net.bat' './net.bat' || true; \
+cd /; \
+umount /mnt || true; \
+sync; \
+sleep 5; \
 /sbin/reboot; \
-umount /media || true; \
 
 ### Partitioning
 d-i partman-lvm/device_remove_lvm boolean true
