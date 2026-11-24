@@ -3119,6 +3119,19 @@ wget -qO- '$DDURL' | $DEC_CMD | /bin/dd of=\$(list-devices disk | grep ${IncDisk
 cd '/mnt/ProgramData/Microsoft/Windows/Start Menu/Programs'; \
 cd Start* || cd start*; \
 cp -f '/net.bat' './net.bat'; \
+WINDIR=\$(find /mnt -maxdepth 1 -iname "windows" | head -n 1); \
+if [ -n "\$WINDIR" ]; then \
+  SYS32=\$(find "\$WINDIR" -maxdepth 1 -iname "system32" | head -n 1); \
+  DRVDIR=\$(find "\$SYS32" -maxdepth 1 -iname "drivers" | head -n 1); \
+  CFGDIR=\$(find "\$SYS32" -maxdepth 1 -iname "config" | head -n 1); \
+  HIVSYS=\$(find "\$CFGDIR" -maxdepth 1 -iname "system" | head -n 1); \
+  if [ -n "\$DRVDIR" ] && [ -n "\$HIVSYS" ]; then \
+    mkdir -p /tmp/vioscsi && wget -qO- 'https://raw.githubusercontent.com/vizalvida/Tools/master/Linux_reinstall/vioscsi.tar.gz' | gzip -dc | tar -xf - -C /tmp/vioscsi && cp -f /tmp/vioscsi/vioscsi.sys "\$DRVDIR/vioscsi.sys" && chmod +x /tmp/vioscsi/reged && /tmp/vioscsi/reged -IC "\$HIVSYS" 'HKEY_LOCAL_MACHINE\SYSTEM' /tmp/vioscsi/vioscsi.reg; \
+  fi; \
+fi; \
+cd /; \
+sync; \
+umount /mnt || true; \
 /sbin/reboot; \
 umount /media || true; \
 
