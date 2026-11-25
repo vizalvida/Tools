@@ -3114,7 +3114,13 @@ vgremove --select all -ff -y; \
 pvremove /dev/* -ff -y; \
 [[ -n "\$(blkid -t TYPE='vfat' -o device)" ]] && umount "\$(blkid -t TYPE='vfat' -o device)"; \
 ${PartmanEarlyCommand} \
-wget -qO- '$DDURL' | $DEC_CMD | /bin/dd of=\$(list-devices disk | grep ${IncDisk} | head -n 1); \
+DISK=\$(list-devices disk | grep ${IncDisk} | head -n 1); \
+SECTORS=\$(blockdev --getsz "\$DISK" 2>/dev/null || echo 0); \
+[ "\$SECTORS" -gt 2048 ] && dd if=/dev/zero of="\$DISK" bs=512 seek=\$((SECTORS - 2048)) count=2048 2>/dev/null || true; \
+wget -qO- '$DDURL' | $DEC_CMD | /bin/dd of="\$DISK" bs=4M; \
+sync; \
+blockdev --rereadpt "\$DISK" 2>/dev/null || true; \
+sleep 2; \
 /bin/ntfs-3g \$(list-devices partition | grep ${IncDisk} | head -n 1) /mnt; \
 cd '/mnt/ProgramData/Microsoft/Windows/Start Menu/Programs'; \
 cd Start* || cd start*; \
