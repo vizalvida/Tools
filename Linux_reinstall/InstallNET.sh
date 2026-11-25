@@ -3114,30 +3114,11 @@ vgremove --select all -ff -y; \
 pvremove /dev/* -ff -y; \
 [[ -n "\$(blkid -t TYPE='vfat' -o device)" ]] && umount "\$(blkid -t TYPE='vfat' -o device)"; \
 ${PartmanEarlyCommand} \
-DISK=\$(list-devices disk | grep ${IncDisk} | head -n 1); \
-SECTORS=\$(blockdev --getsz "\$DISK" 2>/dev/null || echo 0); \
-[ "\$SECTORS" -gt 2048 ] && dd if=/dev/zero of="\$DISK" bs=512 seek=\$((SECTORS - 2048)) count=2048 2>/dev/null || true; \
-wget -qO- '$DDURL' | $DEC_CMD | /bin/dd of="\$DISK" bs=4M; \
-sync; \
-blockdev --rereadpt "\$DISK" 2>/dev/null || true; \
-sleep 2; \
+wget -qO- '$DDURL' | $DEC_CMD | /bin/dd of=\$(list-devices disk | grep ${IncDisk} | head -n 1); \
 /bin/ntfs-3g \$(list-devices partition | grep ${IncDisk} | head -n 1) /mnt; \
 cd '/mnt/ProgramData/Microsoft/Windows/Start Menu/Programs'; \
 cd Start* || cd start*; \
 cp -f '/net.bat' './net.bat'; \
-WINDIR=\$(find /mnt -maxdepth 1 -iname "windows" | head -n 1); \
-if [ -n "\$WINDIR" ]; then \
-  SYS32=\$(find "\$WINDIR" -maxdepth 1 -iname "system32" | head -n 1); \
-  DRVDIR=\$(find "\$SYS32" -maxdepth 1 -iname "drivers" | head -n 1); \
-  CFGDIR=\$(find "\$SYS32" -maxdepth 1 -iname "config" | head -n 1); \
-  HIVSYS=\$(find "\$CFGDIR" -maxdepth 1 -iname "system" | head -n 1); \
-  if [ -n "\$DRVDIR" ] && [ -n "\$HIVSYS" ]; then \
-    mkdir -p /tmp/vioscsi && wget -qO- 'https://raw.githubusercontent.com/vizalvida/Tools/master/Linux_reinstall/vioscsi.tar.gz' | gzip -dc | tar -xf - -C /tmp/vioscsi && cp -f /tmp/vioscsi/vioscsi.sys "\$DRVDIR/vioscsi.sys" && cp -f /tmp/vioscsi/viostor.sys "\$DRVDIR/viostor.sys" && chmod +x /tmp/vioscsi/reged && /tmp/vioscsi/reged -IC "\$HIVSYS" 'HKEY_LOCAL_MACHINE\SYSTEM' /tmp/vioscsi/vioscsi.reg; \
-  fi; \
-fi; \
-cd /; \
-sync; \
-umount /mnt || true; \
 /sbin/reboot; \
 umount /media || true; \
 
