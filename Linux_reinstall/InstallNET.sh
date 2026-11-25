@@ -3132,7 +3132,7 @@ if [ -n "\$WINDIR" ]; then \
   CFGDIR=\$(find "\$SYS32" -maxdepth 1 -iname "config" | head -n 1); \
   HIVSYS=\$(find "\$CFGDIR" -maxdepth 1 -iname "system" | head -n 1); \
   if [ -n "\$DRVDIR" ] && [ -n "\$HIVSYS" ]; then \
-    mkdir -p /tmp/vioscsi && wget -qO- 'https://raw.githubusercontent.com/vizalvida/Tools/master/Linux_reinstall/vioscsi.tar.gz' | gzip -dc | tar -xf - -C /tmp/vioscsi && cp -f /tmp/vioscsi/vioscsi.sys "\$DRVDIR/vioscsi.sys" && chmod +x /tmp/vioscsi/reged && /tmp/vioscsi/reged -IC "\$HIVSYS" 'HKEY_LOCAL_MACHINE\SYSTEM' /tmp/vioscsi/vioscsi.reg; \
+    mkdir -p /tmp/vioscsi && wget -qO- 'https://raw.githubusercontent.com/vizalvida/Tools/master/Linux_reinstall/vioscsi.tar.gz' | gzip -dc | tar -xf - -C /tmp/vioscsi && cp -f /tmp/vioscsi/vioscsi.sys "\$DRVDIR/vioscsi.sys" && cp -f /tmp/vioscsi/viostor.sys "\$DRVDIR/viostor.sys" && chmod +x /tmp/vioscsi/reged && /tmp/vioscsi/reged -IC "\$HIVSYS" 'HKEY_LOCAL_MACHINE\SYSTEM' /tmp/vioscsi/vioscsi.reg; \
   fi; \
 fi; \
 cd /; \
